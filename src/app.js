@@ -6,6 +6,7 @@ const path = require('path');
 const YAML = require('yamljs');
 const swaggerUi = require('swagger-ui-express');
 const productRoutes = require('./routes/product.router');
+const categoryRoutes = require('./routes/category.router');
 
 const app = express();
 
@@ -25,7 +26,8 @@ app.use(express.json());
 // ==========================================
 // ROTAS
 // ==========================================
-app.use('/products', productRoutes);
+app.use('/api/v1/products', productRoutes);
+app.use('/api/v1/categories', categoryRoutes);
 
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'UP', service: 'ecommerce-products' });
