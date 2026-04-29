@@ -143,6 +143,8 @@ paths:
                   $ref: "#/components/schemas/Category"
         "401":
           description: Token não fornecido ou inválido
+        "403":
+          description: Acesso negado. Apenas administradores podem realizar esta ação.
           content:
             application/json:
               schema:
@@ -173,6 +175,12 @@ paths:
                 $ref: "#/components/schemas/Error"
         "401":
           description: Token não fornecido ou inválido
+        "403":
+          description: Acesso negado. Apenas administradores podem realizar esta ação.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
   /categories/{id}:
     get:
@@ -243,6 +251,12 @@ paths:
           description: Categoria deletada com sucesso
         "401":
           description: Token não fornecido ou inválido
+        "403":
+          description: Acesso negado. Apenas administradores podem realizar esta ação.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
   /products:
     get:
@@ -260,6 +274,8 @@ paths:
                   $ref: "#/components/schemas/Product"
         "401":
           description: Token não fornecido ou inválido
+        "403":
+          description: Acesso negado. Apenas administradores podem realizar esta ação.
           content:
             application/json:
               schema:
@@ -290,6 +306,12 @@ paths:
                 $ref: "#/components/schemas/Error"
         "401":
           description: Token não fornecido ou inválido
+        "403":
+          description: Acesso negado. Apenas administradores podem realizar esta ação.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
   /products/search/name:
     get:
@@ -448,3 +470,9 @@ paths:
           description: Produto deletado com sucesso
         "401":
           description: Token não fornecido ou inválido
+        "403":
+          description: Acesso negado. Apenas administradores podem realizar esta ação.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"

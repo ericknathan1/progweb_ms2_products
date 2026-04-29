@@ -37,8 +37,19 @@ app.get('/health', (req, res) => {
 // TRATAMENTO DE ERROS GLOBAL
 // ==========================================
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ error: 'Erro interno no servidor!' });
+  if (err instanceof AppError) {
+    return res.status(err.statusCode).json({
+      status: 'error',
+      message: err.message,
+    });
+  }
+
+  console.error('[ERRO CRÍTICO]:', err);
+  
+  return res.status(500).json({
+    status: 'error',
+    message: 'Erro interno no servidor.',
+  });
 });
 
 module.exports = app;

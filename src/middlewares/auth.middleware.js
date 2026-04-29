@@ -1,21 +1,64 @@
 const jwt = require('jsonwebtoken');
+const { AppError } = require('../utils/AppError');
 
-const authMiddleware = (req, res, next) => {
-  const authHeader = req.headers.authorization;
-
-  if (!authHeader) {
-    return res.status(401).json({ error: 'Token não fornecido' });
-  }
-
-  const [, token] = authHeader.split(' ');
-
+// ==========================================
+// 1. MIDDLEWARE DE AUTENTICAÇÃO (Verifica o Token)
+// ==========================================
+const isAuthenticated = (req, res, next) => {
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader) {
+      throw new AppError('Token JWT não fornecido.', 401);
+    }
+
+    const parts = authHeader.split(' ');
+    
+    if (parts.length < 2 || parts[0] !== 'Bearer') {
+      throw new AppError('Token mal formatado. O formato deve ser "Bearer <token>".', 401);
+    }
+
+    const token = parts[1];
+    const secret = process.env.JWT_SECRET;
+
+    if (!secret) {
+      throw new AppError('Chave secreta JWT não configurada no servidor.', 500);
+    }
+
+    const decoded = jwt.verify(token, secret);
+
     req.user = decoded;
+
     return next();
-  } catch (err) {
-    return res.status(401).json({ error: 'Token inválido ou expirado' });
+  } catch (error) {
+    if (error instanceof jwt.TokenExpiredError) {
+      return next(new AppError('Seu token expirou. Faça login novamente.', 401));
+    }
+    if (error instanceof jwt.JsonWebTokenError) {
+      return next(new AppError('Token inválido ou corrompido.', 401));
+    }
+    next(error);
   }
 };
 
-module.exports = authMiddleware;
+// ==========================================
+// 2. MIDDLEWARE DE AUTORIZAÇÃO (Verifica o Role)
+// ==========================================
+const authorizeRoles = (...allowedRoles) => {
+  return (req, res, next) => {
+    if (!req.user) {
+      return next(new AppError('Usuário não autenticado.', 401));
+    }
+
+    if (!allowedRoles.includes(req.user.role)) {
+      return next(new AppError('Acesso negado. Você não tem permissão para esta ação.', 403));
+    }
+
+    next();
+  };
+};
+
+module.exports = {
+  isAuthenticated,
+  authorizeRoles
+};
